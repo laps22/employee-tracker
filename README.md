@@ -44,8 +44,8 @@
 
    ## Links
 
-   GitHub: https://github.com/laps22/employee-tracker.git
-   Screencastify: 
+   * GitHub: https://github.com/laps22/employee-tracker.git
+   * Screencastify: 
 
    ## Screenshots
 
