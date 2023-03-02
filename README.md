@@ -40,7 +40,7 @@
 
    Run the following in the CLI to test the application
    
-   mysql -u root -p to connect the mysql databse and node index.js to run the applicaiton within the CLI.
+   mysql -u root -p to connect the mysql databse and node server.js to run the applicaiton within the CLI.
 
    ## Links
 
