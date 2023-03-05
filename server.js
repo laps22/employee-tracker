@@ -70,6 +70,7 @@ function menu() {
           "Add Role",
           "View All Departments",
           "Add Department",
+          "Remove Employee",
           "Quit",
         ],
       },
@@ -96,6 +97,9 @@ function menu() {
           break;
         case "Add Department":
           addDept();
+          break;
+        case "Remove Employee":
+          removeEmployee();
           break;
         case "Quit":
           console.log(
@@ -209,14 +213,15 @@ function addRole() {
 }
 
 function addEmployee() {
-  db.query(`SELECT * FROM employee;`, (err, result) => {
+  db.query(`SELECT e.*, r.role_title FROM employee e LEFT JOIN employee_roles r ON e.role_id = r.id;`, (err, result) => {
     if (err) {
       console.log(err);
     }
-    const roleChoices = result.map(({ role_id, id }) => ({
-      name: role_id,
+    const roleChoices = result.map(({ id, role_title }) => ({
+      name: role_title,
       value: id,
     }));
+
     const managerChoices = result.map(({ first_name, last_name, id }) => ({
       name: first_name + " " + last_name,
       value: id,
@@ -262,9 +267,62 @@ function addEmployee() {
   });
 }
 
-// Update Employee
 
+// Update Employee
 function updateRole() {
+  db.query(
+    `SELECT e.id, e.first_name, e.last_name, r.role_title, r.id AS role_id
+     FROM employee e
+     INNER JOIN employee_roles r ON e.role_id = r.id;`,
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      const employees = result.map(({ first_name, last_name, id }) => ({
+        name: `${first_name} ${last_name}`,
+        value: id,
+      }));
+      const roles = result.map(({ role_title, role_id }) => ({
+        name: role_title,
+        value: role_id,
+      }));
+
+      inquirer
+        .prompt([
+          {
+            type: "list",
+            name: "id",
+            message: "Which employee's role do you want to update?",
+            choices: employees,
+          },
+          {
+            type: "list",
+            name: "role_id",
+            message: "Which role do you want to assign the selected employee?",
+            choices: roles,
+          },
+        ])
+        .then((answer) => {
+          db.query(
+            `UPDATE employee SET role_id = ${answer.role_id} WHERE id = ${answer.id}`,
+            (err, result) => {
+              if (err) {
+                console.log(err);
+              }
+              console.log("Updated employee's role");
+              menu();
+            }
+          );
+        });
+    }
+  );
+}
+
+
+// Removing (Deleting)
+
+
+function removeEmployee() {
   db.query(`SELECT * FROM employee;`, (err, result) => {
     if (err) {
       console.log(err);
@@ -273,34 +331,33 @@ function updateRole() {
       name: first_name + " " + last_name,
       value: id,
     }));
-    const roles = result.map(({ role_title, role_id }) => ({
-      name: role_title,
-      value: role_id,
-    }));
 
     inquirer
       .prompt([
         {
           type: "list",
           name: "id",
-          message: "Which employees role do you want to update?",
+          message: "Which employee do you want to delete?",
           choices: employees,
         },
         {
-          type: "list",
-          name: "role_id",
-          message: "Which role do you want to assign the selected employee?",
-          choices: roles,
+          type: "confirm",
+          name: "confirmDelete",
+          message: "Are you sure you want to delete this employee?",
         },
       ])
       .then((answer) => {
-        db.query(`UPDATE employee SET role_id`, answer, (err, result) => {
-          if (err) {
-            console.log(err);
-          }
-          console.log('Updated employees role');
+        if (answer.confirmDelete) {
+          db.query(`DELETE FROM employee WHERE id = ?`, [answer.id], (err, result) => {
+            if (err) {
+              console.log(err);
+            }
+            console.log("Employee has been removed from the database");
+            menu();
+          }); 
+        } else {
           menu();
-        });
+        };
       });
   });
-};
+}
