@@ -124,7 +124,9 @@ function viewDept() {
 }
 
 function viewRoles() {
-  db.query(`SELECT * FROM employee_roles;`, (err, result) => {
+  db.query(`SELECT r.id, r.role_title, r.role_salary, d.department
+  FROM employee_roles r
+  INNER JOIN employee_departments d ON r.department_id = d.id;`, (err, result) => {
     if (err) {
       console.log(err);
     }
@@ -134,13 +136,18 @@ function viewRoles() {
 }
 
 function viewEmployees() {
-  db.query(`SELECT * FROM employee;`, (err, result) => {
-    if (err) {
-      console.log(err);
-    }
-    console.table(result);
-    menu();
-  });
+  db.query(`SELECT e.id, e.first_name, e.last_name, r.role_title, d.department, r.role_salary, CONCAT(m.first_name, ' ', m.last_name) AS Manager 
+  FROM employee e
+  LEFT JOIN employee_roles r ON e.role_id = r.id
+  LEFT JOIN employee_departments d ON r.department_id = d.id
+  LEFT JOIN employee m ON e.employee_manager_id = m.id;`,
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      console.table(result);
+      menu();
+    });
 }
 
 //Adding
@@ -257,8 +264,7 @@ function addEmployee() {
             console.log(err);
           }
           console.log(
-            `${
-              answer.first_name + " " + answer.last_name
+            `${answer.first_name + " " + answer.last_name
             } has been added to the database`
           );
           menu();
@@ -354,7 +360,7 @@ function removeEmployee() {
             }
             console.log("Employee has been removed from the database");
             menu();
-          }); 
+          });
         } else {
           menu();
         };
