@@ -45,9 +45,11 @@
    ## Links
 
    * GitHub: https://github.com/laps22/employee-tracker.git
-   * Screencastify: 
+   * Screencastify: https://drive.google.com/file/d/14CkABw9eZMlQ5IztjnAavRQWwmaiej8Z/view
 
    ## Screenshots
+
+    ![Screenshot](./assets/images/ET_DB.png)
 
    ## Questions
 
